@@ -84,14 +84,13 @@ requestAnimationFrame(update, canvas);
 //Up
 if(moveUp && !moveDown)
 {
-	console.log("asd");
 cat.vy = −5;
-	console.log("asd");
 }
 //Down
 if(moveDown && !moveUp)
 {
-cat.vy = 5;
+	console.log("sex");
+	cat.vy = 5;
 }
 //Left
 if(moveLeft && !moveRight)
