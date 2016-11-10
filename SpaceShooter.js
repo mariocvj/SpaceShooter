@@ -10,7 +10,8 @@ y: 0,
 width: 64,
 height: 64,
 vx: 0,
-vy: 0};
+vy: 0
+};
 //--- The main program
 //The canvas and its drawing surface
 var canvas = document.querySelector("canvas");
@@ -84,18 +85,17 @@ requestAnimationFrame(update, canvas);
 //Up
 if(moveUp && !moveDown)
 {
-cat.vy = −5;
+cat.vy = -5;
 }
 //Down
 if(moveDown && !moveUp)
 {
-	console.log("sex");
-	cat.vy = 5;
+cat.vy = 5;
 }
 //Left
 if(moveLeft && !moveRight)
 {
-cat.vx = −5;
+cat.vx = -5;
 }
 //Right
 if(moveRight && !moveLeft)
