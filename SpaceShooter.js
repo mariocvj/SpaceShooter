@@ -1,6 +1,7 @@
 //--- The sprite object
 var spriteObject = {
-	sourceX: 0
+	image: null          //ja dodao, sadrži sliku sprajta objekta, treba je definirati za svaki novi objekt
+	, sourceX: 0
 	, sourceY: 0
 	, sourceWidth: 128
 	, sourceHeight: 128
@@ -8,41 +9,61 @@ var spriteObject = {
 	, y: 0
 	, width: 128
 	, height: 128
-	, vx: 0
-	, vy: 0
-	, rotation: 0
-	, acceleration: 5
+	, velocityX: 0
+	, velocityY: 0
+	, rotation: 0         
+	, acceleration: 3    //snaga pogona objekta, tj. koliko brzo može ubrzati
+	, airResistance: 0.05 //trenje zraka na objekt, MORA BITI IZMEĐU 0 i 1
 };
+
 // Screen Resolution setup
 var screenWidth = 1000;
 var screenHeight = 500;
 document.getElementById( "glavniCanvas" ).width = screenWidth.toString();
 document.getElementById( "glavniCanvas" ).height = screenHeight.toString();
-//--- The main program
+
 //The canvas and its drawing surface
 var canvas = document.querySelector( "canvas" );
 var drawingSurface = canvas.getContext( "2d" );
+
+
+
+//-------- LOADING ALL GRAPHICAL RESOURCES ---------
+
 //An array to store the sprites
 var sprites = [];
-//Create the player sprite and center it
+
+//Create the player sprite
 var player = Object.create( spriteObject );
 player.x = 23;
 player.y = 18;
-sprites.push( player );
 //Load the playerImage
-var playerImage = new Image();
-playerImage.addEventListener( "load", loadHandler, false );
-playerImage.src = "PlaceholderGraphics/spaceship.png";
-//Arrow key codes
+player.image = new Image();
+player.image.addEventListener( "load", loadHandler, false );
+player.image.src = "PlaceholderGraphics/spaceship.png";
+//store the sprite in sprites array which is used in physics() and render() functions
+sprites.push( player );
+//loading the bullet image ONLY, bullet sprites are created when a ship shots
+var bulletImg = new Image();
+bulletImg.addEventListener( "load", loadHandler, false );
+bulletImg.src = "PlaceholderGraphics/Bullet.png";
+
+
+
+//------------ SETING UP PLAYER INPUT LISTENERS ------------
+
+//Used keys key codes
 var UP = 38;
 var DOWN = 40;
 var RIGHT = 39;
 var LEFT = 37;
-//Directions
+var SPACE = 32;
+//Player commands
 var moveUp = false;
 var moveDown = false;
 var moveRight = false;
 var moveLeft = false;
+var shoot= false;
 //Add keyboard listeners
 window.addEventListener( "keydown", function( event ) {
 	switch ( event.keyCode ) {
@@ -57,6 +78,9 @@ window.addEventListener( "keydown", function( event ) {
 			break;
 		case RIGHT:
 			moveRight = true;
+			break;
+		case SPACE:
+			shoot = true;
 			break;
 	}
 }, false );
@@ -74,6 +98,9 @@ window.addEventListener( "keyup", function( event ) {
 		case RIGHT:
 			moveRight = false;
 			break;
+		case SPACE:
+			shoot = false;
+			break;
 	}
 }, false );
 
@@ -88,14 +115,28 @@ function loadHandler() {
 function update() {
 	//The animation loop
 	requestAnimationFrame( update, canvas );
-	//Up
+
+	//react to player input
+	inputProcesor();
+	//apply physics to all sprites
+	physics();
+	//Render all sprites
+	render();
+}
+
+
+
+
+function inputProcesor(){
+	//reacts to all player input
+		//Up
 	if ( moveUp && !moveDown ) {
-		player.vy += player.acceleration * Math.sin(player.rotation * Math.PI / 180);
-		player.vx += player.acceleration * Math.cos(player.rotation * Math.PI / 180);
+		player.velocityY += player.acceleration * Math.sin(player.rotation * Math.PI / 180);
+		player.velocityX += player.acceleration * Math.cos(player.rotation * Math.PI / 180);
 	}
 	//Down
 	if ( moveDown && !moveUp ) {
-		player.vy += 5;
+		//player.velocityY += 5;
 	}
 	//Left
 	if ( moveLeft && !moveRight ) {
@@ -105,30 +146,36 @@ function update() {
 	if ( moveRight && !moveLeft ) {
 		player.rotation += 5;
 	}
-	//Lower the player's velocity to simulate air resistance
-	player.vy -= player.vy/20 ;
-	player.vx -= player.vx/20;
-	
-	//Move the 
-	player
-	player.x += player.vx;
-	player.y += player.vy;
-	//Render the sprite
-	render();
+	//Shoot
+	if (shoot){
+		var bullet = Object.create( spriteObject );
+		bullet.x=player.x;
+		bullet.y=player.y;
+		bullet.rotation=player.rotation;
+		bullet.airResistance=0;
+		bullet.velocityY=15*Math.sin(player.rotation * Math.PI / 180);	
+		bullet.velocityX=15*Math.cos(player.rotation * Math.PI / 180);
+		bullet.image=bulletImg;
+		sprites.push( bullet);
+	}
 }
 
 
 
-function renderrr() {
-	//Clear the previous animation frame
-	drawingSurface.clearRect( 0, 0, canvas.width, canvas.height );
-	//Loop through all the sprites and use their properties to display them
+function physics(){
+	//applyes physics to all objects in the game
 	if ( sprites.length !== 0 ) {
 		for ( var i = 0; i < sprites.length; i++ ) {
 			var sprite = sprites[ i ];
-			drawingSurface.drawImage( playerImage, sprite.sourceX, sprite.sourceY, sprite.sourceWidth
-				, sprite.sourceHeight, Math.floor( sprite.x ), Math.floor( sprite.y ), sprite.width, sprite.height
-			);
+			if ( true ) {
+					//Move the sprite
+					sprite.x += sprite.velocityX;
+					sprite.y += sprite.velocityY;
+
+					//Lower the sprite's velocity to simulate air resistance
+					sprite.velocityY -= sprite.velocityY*sprite.airResistance;
+					sprite.velocityX -= sprite.velocityX*sprite.airResistance;
+			}
 		}
 	}
 }
@@ -149,7 +196,7 @@ function render() {
 				drawingSurface.translate( Math.floor( sprite.x + ( sprite.width / 2 ) ), Math.floor( sprite.y +	( sprite.height / 2 ) ) );
 				//rotiranje sprajta
 				drawingSurface.rotate( (sprite.rotation) * Math.PI / 180 );
-				drawingSurface.drawImage( playerImage, sprite.sourceX, sprite.sourceY, sprite.sourceWidth, sprite.sourceHeight
+				drawingSurface.drawImage( sprite.image, sprite.sourceX, sprite.sourceY, sprite.sourceWidth, sprite.sourceHeight
 					, -sprite.width / 2, -sprite.height / 2 , sprite.width, sprite.height );
 				//Restore the drawing surface to its state before it was rotated
 				drawingSurface.restore();
