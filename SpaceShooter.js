@@ -17,8 +17,8 @@ var spriteObject = {
 };
 
 // Screen Resolution setup
-var screenWidth = 1000;
-var screenHeight = 500;
+var screenWidth = 2000;
+var screenHeight = 800;
 document.getElementById( "glavniCanvas" ).width = screenWidth.toString();
 document.getElementById( "glavniCanvas" ).height = screenHeight.toString();
 
@@ -33,6 +33,17 @@ var drawingSurface = canvas.getContext( "2d" );
 //An array to store the sprites
 var sprites = [];
 
+var background = Object.create( spriteObject );
+background.width = 2000;
+background.height = 800;
+background.sourceWidth = 2000;
+background.sourceHeight = 800;
+background.image = new Image();
+background.image.addEventListener( "load", loadHandler, false );		
+background.image.src = "img/earth.jpg";
+sprites.push(background);	
+
+
 //Create the player sprite
 var player = Object.create( spriteObject );
 player.x = 23;
@@ -40,13 +51,14 @@ player.y = 18;
 //Load the playerImage
 player.image = new Image();
 player.image.addEventListener( "load", loadHandler, false );
-player.image.src = "PlaceholderGraphics/spaceship.png";
+player.image.src = "img/spaceship.png";
 //store the sprite in sprites array which is used in physics() and render() functions
 sprites.push( player );
+
 //loading the bullet image ONLY, bullet sprites are created when a ship shots
 var bulletImg = new Image();
 bulletImg.addEventListener( "load", loadHandler, false );
-bulletImg.src = "PlaceholderGraphics/Bullet.png";
+bulletImg.src = "img/Bullet.png";
 
 
 
