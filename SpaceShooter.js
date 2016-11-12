@@ -1,30 +1,4 @@
-//--- The sprite object
-var spriteObject = {
-	image: null,              //ja dodao, sadrži sliku sprajta objekta, treba je definirati za svaki novi objekt
-	sourceX: 0,
-	sourceY: 0,
-	sourceWidth: 128,
-	sourceHeight: 128,
-	x: 0,
-	y: 0,
-	width: 128,
-	height: 128,
-	velocityX: 0,
-	velocityY: 0,
-	rotation: 0,
-	acceleration: 0.3,         //snaga pogona objekta, tj. koliko brzo može ubrzati
-	airResistance: 0.02,       //trenje zraka na objekt, MORA BITI IZMEĐU 0 i 1
-	collisionRadius: 60        //koristi se u detekciji kolizije
-	//Getters
-centerX: function()
-{
-return this.x + (this.width / 2);
-},
-centerY: function()
-{
-return this.y + (this.height / 2);
-}
-};
+
 
 // Screen Resolution setup
 var screenWidth = 1000;
@@ -39,45 +13,6 @@ var canvas = document.querySelector( "canvas" );
 var drawingSurface = canvas.getContext( "2d" );
 
 
-
-//-------- LOADING ALL GRAPHICAL RESOURCES ---------
-
-//An array to store the sprites
-var sprites = [];
-//Create the player sprite
-var player = Object.create( spriteObject );
-player.x = 23;
-player.y = 18;
-//Load the playerImage
-player.image = new Image();
-player.image.addEventListener( "load", loadHandler, false );
-player.image.src = "PlaceholderGraphics/spaceship.png";
-//store the sprite in sprites array which is used in physics() and render() functions
-sprites.push( player );
-
-//loading the bullet image ONLY, bullet sprites are created when a ship shots
-var bulletImg = new Image();
-bulletImg.addEventListener( "load", loadHandler, false );
-bulletImg.src = "PlaceholderGraphics/Bullet.png";
-var meteor1 = Object.create( spriteObject );
-meteor1.x = 222;
-meteor1.y = 333;
-var meteor2 = Object.create( spriteObject );
-meteor2.x = 482;
-meteor2.y = 433;
-var meteor3 = Object.create( spriteObject );
-meteor3.x = 792;
-meteor3.y = 103;
-var meteorImg = new Image();
-meteorImg.addEventListener( "load", loadHandler, false );
-meteorImg.src = "PlaceholderGraphics/Meteor2.png";
-meteor1.image = meteorImg;
-meteor2.image = meteorImg;
-meteor3.image = meteorImg;
-meteor1.collisionRadius=29;
-meteor2.collisionRadius=29;
-meteor3.collisionRadius=29;
-sprites.push( meteor1, meteor2, meteor3 );
 
 
 
@@ -137,6 +72,17 @@ window.addEventListener( "keyup", function( event ) {
 
 
 
+//creating player object
+var player = new shipClass(playerImg,233,333,5,0.1);
+player.width=64;
+player.height=64;
+var player2 = new shipClass(playerImg,533,133,5,0.1);
+console.log(player.velocityY);
+
+var meteorImg = new Image();
+meteorImg.addEventListener("load", loadHandler, false);
+meteorImg.src = "PlaceholderGraphics/Meteor2.png";
+
 function loadHandler() {
 	update();
 }
@@ -177,16 +123,7 @@ function inputProcesor() {
 	}
 	//Shoot
 	if ( shoot ) {
-		var bullet = Object.create( spriteObject );
-		bullet.x = player.x;
-		bullet.y = player.y;
-		bullet.rotation = player.rotation;
-		bullet.airResistance = 0;
-		bullet.velocityY = 15 * Math.sin( player.rotation * Math.PI / 180 );
-		bullet.velocityX = 15 * Math.cos( player.rotation * Math.PI / 180 );
-		bullet.image = bulletImg;
-		bullet.collisionRadius=5;
-		sprites.push( bullet );
+		new bulletClass(player.rotation,15,player.x,player.y);
 	}
 }
 
@@ -230,7 +167,7 @@ function collision() {
 		}
 	}
 }
-}
+
 
 
 
@@ -258,6 +195,7 @@ function render() {
 	if ( sprites.length !== 0 ) {
 		for ( var i = 0; i < sprites.length; i++ ) {
 			var sprite = sprites[ i ];
+			var spriteImage=sprite.imageClass;
 			if ( true ) {
 				//Save the current state of the drawing surface before it's rotated
 				drawingSurface.save();
@@ -265,8 +203,8 @@ function render() {
 				drawingSurface.translate( Math.floor( sprite.x + ( sprite.width / 2 ) ), Math.floor( sprite.y + ( sprite.height / 2 ) ) );
 				//rotiranje sprajta
 				drawingSurface.rotate( ( sprite.rotation ) * Math.PI / 180 );
-				drawingSurface.drawImage( sprite.image, sprite.sourceX, sprite.sourceY, sprite.sourceWidth, sprite.sourceHeight, -sprite.width / 2, -sprite.height / 2,
-					sprite.width, sprite.height );
+				drawingSurface.drawImage( spriteImage.imageFile, spriteImage.sourceX, spriteImage.sourceY, spriteImage.sourceWidth, spriteImage.sourceHeight, -sprite.width / 2, -sprite.height / 2,
+				sprite.width, sprite.height );
 				//Restore the drawing surface to its state before it was rotated
 				drawingSurface.restore();
 			}
