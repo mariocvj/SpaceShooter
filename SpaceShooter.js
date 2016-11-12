@@ -17,8 +17,8 @@ var spriteObject = {
 };
 
 // Screen Resolution setup
-var screenWidth = 1000;
-var screenHeight = 500;
+var screenWidth = 2000;
+var screenHeight = 800;
 document.getElementById( "glavniCanvas" ).width = screenWidth.toString();
 document.getElementById( "glavniCanvas" ).height = screenHeight.toString();
 
@@ -33,6 +33,48 @@ var drawingSurface = canvas.getContext( "2d" );
 //An array to store the sprites
 var sprites = [];
 
+var background = Object.create( spriteObject );
+background.width = 2000;
+background.height = 800;
+background.sourceWidth = 2000;
+background.sourceHeight = 800;
+background.image = new Image();
+background.image.addEventListener( "load", loadHandler, false );		
+background.image.src = "img/earth.jpg";
+sprites.push(background);	
+
+var gameWorld ={
+	x: 0,
+	y: 0,
+	width: background.width,
+	height: background.height
+};
+var camera ={
+	x: 0,
+	y: 0,
+	width: 4500,
+	height: 4550,
+	//The camera's inner boundaries
+	rightInnerBoundary: function()
+	{
+	return this.x + (this.width * 0.75);
+	},
+	leftInnerBoundary: function()
+	{
+	return this.x + (this.width * 0.25);
+	},
+	topInnerBoundary: function()
+	{
+	return this.y + (this.height * 0.25);
+	},
+	bottomInnerBoundary: function()
+	{
+	return this.y + (this.height * 0.75);
+	}
+};
+console.log(camera.x + camera.y);
+
+
 //Create the player sprite
 var player = Object.create( spriteObject );
 player.x = 23;
@@ -40,13 +82,15 @@ player.y = 18;
 //Load the playerImage
 player.image = new Image();
 player.image.addEventListener( "load", loadHandler, false );
-player.image.src = "PlaceholderGraphics/spaceship.png";
+player.image.src = "img/spaceship.png";
 //store the sprite in sprites array which is used in physics() and render() functions
+
 sprites.push( player );
+
 //loading the bullet image ONLY, bullet sprites are created when a ship shots
 var bulletImg = new Image();
 bulletImg.addEventListener( "load", loadHandler, false );
-bulletImg.src = "PlaceholderGraphics/Bullet.png";
+bulletImg.src = "img/Bullet.png";
 
 
 
@@ -113,8 +157,49 @@ function loadHandler() {
 
 
 function update() {
+	console.log("update");
 	//The animation loop
 	requestAnimationFrame( update, canvas );
+	player.x = (gameWorld.x + gameWorld.width / 2) - player.width / 2;
+	player.y = (gameWorld.y + gameWorld.height / 2) - player.height / 2;
+
+	//Center the camera to follow the player	
+	camera.x = (gameWorld.x + gameWorld.width / 2) - camera.width / 2;
+	camera.y = (gameWorld.y + gameWorld.height / 2) - camera.height / 2;
+	//Keep the camera inside the gameWorld boundaries
+	//Scroll the camera
+	if(player.x < camera.leftInnerBoundary())
+{
+camera.x = Math.max(0, Math.min
+(
+Math.floor(player.x - (camera.width * 0.25)),
+gameWorld.width - camera.width
+));
+}
+if(player.y < camera.topInnerBoundary())
+{
+camera.y = Math.max(0, Math.min
+(
+Math.floor(player.y - (camera.height * 0.25)),
+gameWorld.height - camera.height
+));
+}
+if(player.x + player.width > camera.rightInnerBoundary())
+{
+camera.x = Math.max(0, Math.min
+(
+Math.floor(player.x + player.width - (camera.width * 0.75)),
+gameWorld.width - camera.width
+));
+}
+if(player.y + player.height > camera.bottomInnerBoundary())
+{
+camera.y = Math.max(0, Math.min
+(
+Math.floor(player.y + player.height - (camera.height * 0.75)),
+gameWorld.height - camera.height
+));
+}
 
 	//react to player input
 	inputProcesor();
@@ -128,6 +213,7 @@ function update() {
 
 
 function inputProcesor(){
+	console.log("inputProcesor");
 	//reacts to all player input
 		//Up
 	if ( moveUp && !moveDown ) {
@@ -163,6 +249,7 @@ function inputProcesor(){
 
 
 function physics(){
+	console.log("physics");
 	//applyes physics to all objects in the game
 	if ( sprites.length !== 0 ) {
 		for ( var i = 0; i < sprites.length; i++ ) {
