@@ -28,7 +28,7 @@ var playerImg = new imageClass("PlaceholderGraphics/spaceship.png",0,0,128,128);
 
 var bulletImg = new imageClass("PlaceholderGraphics/Bullet.png",0,0,20,12);
 
-var backgroundImg = new imageClass("PlaceholderGraphics/Background.png",0,0,0,0); //last 4 arguments are changed in the main loop as player moves
+var backgroundImg = new imageClass("PlaceholderGraphics/Background.jpg",0,0,0,0); //last 4 arguments are changed in the main loop as player moves
 
 
 
