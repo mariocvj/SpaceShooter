@@ -1,12 +1,23 @@
 
 
 // Screen Resolution setup
-var screenWidth = 1000;
+var screenWidth = 1200;
 var screenHeight = 500;
+var halfScreenWidth=screenWidth/2;     //these 2 half variables are used a lot in the program so they are calculated here for optimization
+var halfScreenHeight=screenHeight/2;
 document.getElementById( "glavniCanvas" )
 	.width = screenWidth.toString();
 document.getElementById( "glavniCanvas" )
 	.height = screenHeight.toString();
+
+//Game map setup
+var mapWidth=7680;
+var mapHeight=4320;
+var backgroundZoom=1;   //1 is normal, less than 1 is zoom IN, more than 1 is zoom OUT
+backgroundImg.sourceWidth=screenWidth*backgroundZoom;
+backgroundImg.sourceHeight=screenHeight*backgroundZoom;
+var background = new spriteClass(backgroundImg,0,0,0);  //creating the background sprite
+removeObject(background, sprites);     //remove background sprite from sprites rendering array because it has it's own rendering code
 
 //The canvas and its drawing surface
 var canvas = document.querySelector( "canvas" );
@@ -73,11 +84,12 @@ window.addEventListener( "keyup", function( event ) {
 
 
 //creating player object
-var player = new shipClass(playerImg,233,333,5,0.1);
+var player = new shipClass(playerImg,1133,2333,5,0.1);
 player.width=64;
 player.height=64;
 var player2 = new shipClass(playerImg,533,133,5,0.1);
-console.log(player.velocityY);
+console.log(player);
+
 
 var meteorImg = new Image();
 meteorImg.addEventListener("load", loadHandler, false);
@@ -94,8 +106,14 @@ function update() {
 	requestAnimationFrame( update, canvas );
 	//react to player input
 	inputProcesor();
+	//center the camera on the player
+	centerCamera(player.x,player.y);
+	//keep the player inside the map
+	mapBoundaryCollision();
 	//apply physics to all sprites
 	physics();
+	//check for collisions
+	collisionDetect();
 	//Render all sprites
 	render();
 }
@@ -131,10 +149,16 @@ function inputProcesor() {
 
 function physics() {
 	//applyes physics to all objects in the game
-	if ( sprites.length !== 0 ) {
-		for ( var i = 0; i < sprites.length; i++ ) {
-			var sprite = sprites[ i ];
-			if ( true ) {
+	if ( physicals.length !== 0 ) {
+		for ( var i = 0; i < physicals.length; i++ ) {
+			var sprite = physicals[ i ];
+			if ( outOfScreen(sprite.x ,sprite.y) ) {
+				removeObject(sprite,physicals);
+				removeObject(sprite,solids);
+				removeObject(sprite,sprites);
+			}
+			else
+			{
 				//Move the sprite
 				sprite.x += sprite.velocityX;
 				sprite.y += sprite.velocityY;
@@ -148,42 +172,23 @@ function physics() {
 
 
 
-function collision() {
-	if ( sprites.length !== 0 ) {
-		for ( var i = 0; i < sprites.length; i++ ) {
-			var sprite = sprites[ i ];
-			if ( true ) {
-				//Save the current state of the drawing surface before it's rotated
-				drawingSurface.save();
-				//Rotate the canvas
-				drawingSurface.translate( Math.floor( sprite.x + ( sprite.width / 2 ) ), Math.floor( sprite.y + ( sprite.height / 2 ) ) );
-				//rotiranje sprajta
-				drawingSurface.rotate( ( sprite.rotation ) * Math.PI / 180 );
-				drawingSurface.drawImage( sprite.image, sprite.sourceX, sprite.sourceY, sprite.sourceWidth, sprite.sourceHeight, -sprite.width / 2, -sprite.height / 2,
-					sprite.width, sprite.height );
-				//Restore the drawing surface to its state before it was rotated
-				drawingSurface.restore();
+function collisionDetect() {     // KOMPLEKSNOST  O(n2)  !!!!!  treba biti optimizirano
+	if ( solids.length !== 0 ) {
+		for ( var i = 0; i <  solids.length; i++ ) {
+			var sprite =  solids[ i ];
+
+			//Check if solids[i] is colliding with any bullet
+			if ( bullets.length !== 0 ) {
+				for (var y = 0 ; y < bullets.length; y++ ){
+					if (hitTestCircle(sprite, bullets[y])){
+						console.log("SUDAR");
+					}
+				}	
+
 			}
+			
 		}
 	}
-}
-
-
-
-
-function hitTestCircle(c1, c2){
-	//Calculate the vector between the circles' center points
-	var vx = c1.centerX() - c2.centerX();
-	var vy = c1.centerY() - c2.centerY();
-	//Find the distance between the circles by calculating
-	//the vector's magnitude (how long the vector is)
-	var magnitude = Math.sqrt(vx * vx + vy * vy);
-	//Add together the circles' total radii
-	var totalRadii = c1.collisionRadius + c2.collisionRadius;
-	//Set hit to true if the distance between the circles is
-	//less than their totalRadii
-	var hit = magnitude < totalRadii;
-	return hit;
 }
 
 
@@ -191,6 +196,10 @@ function hitTestCircle(c1, c2){
 function render() {
 	//Clear the previous animation frame
 	drawingSurface.clearRect( 0, 0, canvas.width, canvas.height );
+	//draw the background
+	drawingSurface.drawImage( backgroundImg.imageFile, backgroundImg.sourceX, backgroundImg.sourceY, backgroundImg.sourceWidth, backgroundImg.sourceHeight, 0, 0,
+	screenWidth * backgroundZoom, screenHeight * backgroundZoom );
+
 	//Loop through all the sprites and use their properties to display them
 	if ( sprites.length !== 0 ) {
 		for ( var i = 0; i < sprites.length; i++ ) {
@@ -200,7 +209,7 @@ function render() {
 				//Save the current state of the drawing surface before it's rotated
 				drawingSurface.save();
 				//Rotate the canvas
-				drawingSurface.translate( Math.floor( sprite.x + ( sprite.width / 2 ) ), Math.floor( sprite.y + ( sprite.height / 2 ) ) );
+				drawingSurface.translate( Math.floor( sprite.x + ( sprite.width / 2 ) )-cameraPosX, Math.floor( sprite.y + ( sprite.height / 2 ) ) -cameraPosY);
 				//rotiranje sprajta
 				drawingSurface.rotate( ( sprite.rotation ) * Math.PI / 180 );
 				drawingSurface.drawImage( spriteImage.imageFile, spriteImage.sourceX, spriteImage.sourceY, spriteImage.sourceWidth, spriteImage.sourceHeight, -sprite.width / 2, -sprite.height / 2,
@@ -210,4 +219,72 @@ function render() {
 			}
 		}
 	}
+}
+
+
+
+//----------------------- MANJE FUNKCIJE KOJE SE KORISTE U VELIKIMA -----------------------------
+
+function mapBoundaryCollision(){
+	if (cameraPosX<0){
+		player.x=halfScreenWidth;
+	}
+	if (cameraPosY<0){
+		player.y=halfScreenHeight;
+	}
+	if (cameraPosX+screenWidth>mapWidth){
+		player.x=mapWidth-halfScreenWidth;
+	}
+	if (cameraPosY+screenHeight>mapHeight){
+		player.y=mapHeight-halfScreenHeight;
+	}
+}
+
+
+
+function centerCamera(cenX,cenY){
+	var x=cenX-halfScreenWidth;
+	var y=cenY-halfScreenHeight;
+	cameraPosX=x;
+	cameraPosY=y;
+	backgroundImg.sourceX=x;
+	backgroundImg.sourceY=y;
+}
+
+
+
+function outOfScreen(x,y){
+	if (x<cameraPosX-100 || y>cameraPosY + screenHeight+100 || y<cameraPosY-100 || x>cameraPosX + screenWidth+100){
+		console.log(x,y);
+		return true;
+	}
+	return false;
+}
+
+
+
+function removeObject(objectToRemove, array)
+{
+	var i = array.indexOf(objectToRemove);
+	if (i !== -1)
+	{
+		array.splice(i, 1);
+	}
+}
+
+
+
+function hitTestCircle(physicsClass1, physicsClass2){
+	//Calculate the vector between the circles' center points
+	var vx = physicsClass1.x + (physicsClass1.width/2) - physicsClass2.x + (physicsClass2.width/2);
+	var vy = physicsClass1.y + (physicsClass1.height/2) - physicsClass2.y + (physicsClass2.height/2);
+	//Find the distance between the circles by calculating
+	//the vector's magnitude (how long the vector is)
+	var magnitude = Math.sqrt(vx * vx + vy * vy);
+	//Add together the circles' total radii
+	var totalRadii = physicsClass1.collisionRadius + physicsClass2.collisionRadius;
+	//Set hit to true if the distance between the circles is
+	//less than their totalRadii
+	var hit = magnitude < totalRadii;
+	return hit;
 }

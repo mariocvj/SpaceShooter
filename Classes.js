@@ -46,24 +46,26 @@ function physicsClass(imageClass,x,y,rotation,velocityY,velocityX,airResistance)
 	spriteClass.call(this,imageClass,x,y,rotation);
 	physicals.push(this);
 }
-//physicsClass.prototype = new spriteClass();
 
-      
+     
 
 function shipClass(imageClass,x,y,acceleration,airResistance){
-	this.acceleration=acceleration; 			//snaga pogona objekta, tj. koliko brzo može ubrzati
+	this.acceleration=acceleration; 
+	this.collisionRadius=(imageClass.sourceWidth+imageClass.sourceHeight)/4.5;			//snaga pogona objekta, tj. koliko brzo može ubrzati
 	physicsClass.call(this,imageClass,x,y,0,0,0,airResistance);
 	ships.push(this);
+	solids.push(this);
 }
-//physicsClass();
 
 
 
 function bulletClass(rotation,velocity,x,y) {
 	var velocityY = velocity * Math.sin( player.rotation * Math.PI / 180 );
 	var velocityX = velocity * Math.cos( player.rotation * Math.PI / 180 );
+	this.collisionRadius=(bulletImg.sourceWidth+bulletImg.sourceHeight)/4.5;
 	physicsClass.call(this,bulletImg,x,y,rotation,velocityY,velocityX,0);
 	bullets.push(this);
+	solids.push(this);
 }
 //physicsClass();
 

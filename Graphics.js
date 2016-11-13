@@ -4,7 +4,7 @@
 //Arrays to store all the objects in, so later main program functions only need to loop through an array specific to their purpose
 var sprites = [];
 var physicals = [];
-//var solids = [];
+var solids = [];      //doesn't have it's own object type, but uses physicsClass who's subclasses instances are added to it
 var ships = [];
 //var players = [];
 var bullets = [];
@@ -26,7 +26,9 @@ function imageClass(src,sourceX,sourceY,sourceWidth,sourceHeight){
 //Load all the images
 var playerImg = new imageClass("PlaceholderGraphics/spaceship.png",0,0,128,128);
 
-var bulletImg = new imageClass("PlaceholderGraphics/Bullet.png",0,0,12,20);
+var bulletImg = new imageClass("PlaceholderGraphics/Bullet.png",0,0,20,12);
+
+var backgroundImg = new imageClass("PlaceholderGraphics/Background.png",0,0,0,0); //last 4 arguments are changed in the main loop as player moves
 
 
 
