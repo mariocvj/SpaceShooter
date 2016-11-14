@@ -67,7 +67,34 @@ function bulletClass(rotation,velocity,x,y) {
 	bullets.push(this);
 	solids.push(this);
 }
-//physicsClass();
+
+
+
+//-------------------- PARTICLE SYSTEM -----------------------
+
+function particleClass(ttl,color,x,y,velocityX,velocityY){
+	this.ttl=ttl;   //ttl stands for time to live, it shows number of frames before particle dies
+	this.x=x;
+	this.y=y;
+ 	this.velocityY = velocityY;
+	this.velocityX = velocityX;      
+	this.color=color;
+	particles.push(this);
+}
+
+function thrusterPlume(x,y,rot){
+	rotation=rot-180;
+	velocity=5;
+	new particleClass(30,"#FF0000",x,y,velocity * Math.cos( rotation * Math.PI / 180 ), velocity * Math.sin( rotation * Math.PI / 180 ));
+	new particleClass(30,"#FF0000",x,y,4 * Math.cos( rotation * Math.PI / 180 ), 4 * Math.sin( rotation * Math.PI / 180 ));
+	new particleClass(30,"#FF0000",x,y,3 * Math.cos( rotation * Math.PI / 180 ), 3 * Math.sin( rotation * Math.PI / 180 ));
+	new particleClass(30,"#FF0000",x,y,velocity * Math.cos( (rotation-10) * Math.PI / 180 ), velocity * Math.sin( (rotation-10) * Math.PI / 180 ));
+	new particleClass(30,"#FF0000",x,y,velocity * Math.cos( (rotation+10) * Math.PI / 180 ), velocity * Math.sin( (rotation+10) * Math.PI / 180 ));
+}
+
+
+
+
 
 
 

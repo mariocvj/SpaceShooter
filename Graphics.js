@@ -8,6 +8,7 @@ var solids = [];      //doesn't have it's own object type, but uses physicsClass
 var ships = [];
 //var players = [];
 var bullets = [];
+var particles=[];
 
 
 

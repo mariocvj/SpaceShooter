@@ -116,6 +116,8 @@ function update() {
 	collisionDetect();
 	//Render all sprites
 	render();
+	//calculate and render particle system
+	moveAndRenderParticles();
 }
 
 
@@ -126,6 +128,9 @@ function inputProcesor() {
 	if ( moveUp && !moveDown ) {
 		player.velocityY += player.acceleration * Math.sin( player.rotation * Math.PI / 180 );
 		player.velocityX += player.acceleration * Math.cos( player.rotation * Math.PI / 180 );
+		//draw thruster plume particle effect
+		thrusterPlume(player.x,player.y,player.rotation);
+
 	}
 	//Down
 	if ( moveDown && !moveUp ) {
@@ -224,6 +229,24 @@ function render() {
 
 
 //----------------------- MANJE FUNKCIJE KOJE SE KORISTE U VELIKIMA -----------------------------
+
+function moveAndRenderParticles(){
+	drawingSurface.fillStyle="#EEEEFF";
+	if ( particles.length !== 0 ) {
+		for ( var i = 0; i < particles.length; i++ ) {
+			var particle = particles[ i ];
+			particle.x+=particle.velocityX;
+			particle.y+=particle.velocityY;
+			drawingSurface.fillRect(particle.x-cameraPosX,particle.y-cameraPosY,4,4);
+			particle.ttl--;
+			if (particle.ttl<1){
+				removeObject(particles[i], particles);
+			}
+		}
+	}
+}
+
+
 
 function mapBoundaryCollision(){
 	if (cameraPosX<0){
