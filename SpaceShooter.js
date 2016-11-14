@@ -84,11 +84,17 @@ window.addEventListener( "keyup", function( event ) {
 
 
 //creating player object
-var player = new shipClass(playerImg,1133,2333,5,0.1);
+var player = new shipClass(playerImg,1133,2333,1,0.1);
 player.width=64;
 player.height=64;
-var player2 = new shipClass(playerImg,533,133,5,0.1);
-console.log(player);
+
+//some environment objects
+var player2 = new shipClass(playerImg,533,2633,5,0.1);
+var comet=new shipClass(meteorImg,1111,1111,0,1);
+comet.width=256;
+comet.height=256;
+new shipClass(meteorImg,1861,1511,0,1);
+new shipClass(meteorImg,861,2001,0,1);
 
 
 var meteorImg = new Image();
@@ -116,8 +122,6 @@ function update() {
 	collisionDetect();
 	//Render all sprites
 	render();
-	//calculate and render particle system
-	moveAndRenderParticles();
 }
 
 
@@ -129,7 +133,7 @@ function inputProcesor() {
 		player.velocityY += player.acceleration * Math.sin( player.rotation * Math.PI / 180 );
 		player.velocityX += player.acceleration * Math.cos( player.rotation * Math.PI / 180 );
 		//draw thruster plume particle effect
-		thrusterPlume(player.x,player.y,player.rotation);
+		thrusterPlume(player.x+player.width/2 ,player.y+player.height/2,player.rotation);
 
 	}
 	//Down
@@ -146,7 +150,7 @@ function inputProcesor() {
 	}
 	//Shoot
 	if ( shoot ) {
-		new bulletClass(player.rotation,15,player.x,player.y);
+		new bulletClass(player.rotation,30,player.x+player.width/2.3+45 * Math.cos( player.rotation * Math.PI / 180 ),player.y+player.height/2.3+45 * Math.sin( player.rotation * Math.PI / 180 ));
 	}
 }
 
@@ -157,20 +161,12 @@ function physics() {
 	if ( physicals.length !== 0 ) {
 		for ( var i = 0; i < physicals.length; i++ ) {
 			var sprite = physicals[ i ];
-			if ( outOfScreen(sprite.x ,sprite.y) ) {
-				removeObject(sprite,physicals);
-				removeObject(sprite,solids);
-				removeObject(sprite,sprites);
-			}
-			else
-			{
-				//Move the sprite
-				sprite.x += sprite.velocityX;
-				sprite.y += sprite.velocityY;
-				//Lower the sprite's velocity to simulate air resistance
-				sprite.velocityY -= sprite.velocityY * sprite.airResistance;
-				sprite.velocityX -= sprite.velocityX * sprite.airResistance;
-			}
+			//Move the sprite
+			sprite.x += sprite.velocityX;
+			sprite.y += sprite.velocityY;
+			//Lower the sprite's velocity to simulate air resistance
+			sprite.velocityY -= sprite.velocityY * sprite.airResistance;
+			sprite.velocityX -= sprite.velocityX * sprite.airResistance;
 		}
 	}
 }
@@ -178,20 +174,30 @@ function physics() {
 
 
 function collisionDetect() {     // KOMPLEKSNOST  O(n2)  !!!!!  treba biti optimizirano
-	if ( solids.length !== 0 ) {
-		for ( var i = 0; i <  solids.length; i++ ) {
-			var sprite =  solids[ i ];
 
-			//Check if solids[i] is colliding with any bullet
-			if ( bullets.length !== 0 ) {
-				for (var y = 0 ; y < bullets.length; y++ ){
-					if (hitTestCircle(sprite, bullets[y])){
-						console.log("SUDAR");
-					}
-				}	
 
+	if ( bullets.length !== 0 ) {
+		for (var i = 0 ; i < bullets.length; i++ ){
+			var bullet =  bullets[ i ];
+			//Check if bullets[i] is out of screen, if it is, delete that bullet
+			if ( outOfScreen(bullet.x ,bullet.y) ) {
+				removeObject(bullet,physicals);
+				removeObject(bullet,bullets);
+				removeObject(bullet,sprites);
 			}
-			
+			else{
+				//Check if bullets[i] is colliding with any solid
+				if ( solids.length !== 0 ) {
+					for ( var y = 0; y <  solids.length; y++ ) {
+						if (hitTestCircle(bullet, solids[y])){
+							smallExplosion(bullet.x,bullet.y);
+							removeObject(bullet, bullets);
+							removeObject(bullet, sprites);
+						}
+					}	
+
+				}
+			}
 		}
 	}
 }
@@ -204,6 +210,9 @@ function render() {
 	//draw the background
 	drawingSurface.drawImage( backgroundImg.imageFile, backgroundImg.sourceX, backgroundImg.sourceY, backgroundImg.sourceWidth, backgroundImg.sourceHeight, 0, 0,
 	screenWidth * backgroundZoom, screenHeight * backgroundZoom );
+
+	//calculate and render particle system
+	moveAndRenderParticles();
 
 	//Loop through all the sprites and use their properties to display them
 	if ( sprites.length !== 0 ) {
@@ -231,13 +240,13 @@ function render() {
 //----------------------- MANJE FUNKCIJE KOJE SE KORISTE U VELIKIMA -----------------------------
 
 function moveAndRenderParticles(){
-	drawingSurface.fillStyle="#EEEEFF";
+	drawingSurface.fillStyle="#FFEE99";
 	if ( particles.length !== 0 ) {
 		for ( var i = 0; i < particles.length; i++ ) {
 			var particle = particles[ i ];
 			particle.x+=particle.velocityX;
 			particle.y+=particle.velocityY;
-			drawingSurface.fillRect(particle.x-cameraPosX,particle.y-cameraPosY,4,4);
+			drawingSurface.fillRect(particle.x-cameraPosX-2,particle.y-cameraPosY-2,4,4);
 			particle.ttl--;
 			if (particle.ttl<1){
 				removeObject(particles[i], particles);

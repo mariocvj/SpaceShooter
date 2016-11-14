@@ -50,8 +50,8 @@ function physicsClass(imageClass,x,y,rotation,velocityY,velocityX,airResistance)
      
 
 function shipClass(imageClass,x,y,acceleration,airResistance){
-	this.acceleration=acceleration; 
-	this.collisionRadius=(imageClass.sourceWidth+imageClass.sourceHeight)/4.5;			//snaga pogona objekta, tj. koliko brzo može ubrzati
+	this.acceleration=acceleration; 											//snaga pogona objekta, tj. koliko brzo može ubrzati
+	this.collisionRadius=(imageClass.sourceWidth+imageClass.sourceHeight)/7;			
 	physicsClass.call(this,imageClass,x,y,0,0,0,airResistance);
 	ships.push(this);
 	solids.push(this);
@@ -62,7 +62,7 @@ function shipClass(imageClass,x,y,acceleration,airResistance){
 function bulletClass(rotation,velocity,x,y) {
 	var velocityY = velocity * Math.sin( player.rotation * Math.PI / 180 );
 	var velocityX = velocity * Math.cos( player.rotation * Math.PI / 180 );
-	this.collisionRadius=(bulletImg.sourceWidth+bulletImg.sourceHeight)/4.5;
+	this.collisionRadius=(bulletImg.sourceWidth+bulletImg.sourceHeight)/7;
 	physicsClass.call(this,bulletImg,x,y,rotation,velocityY,velocityX,0);
 	bullets.push(this);
 	solids.push(this);
@@ -84,12 +84,24 @@ function particleClass(ttl,color,x,y,velocityX,velocityY){
 
 function thrusterPlume(x,y,rot){
 	rotation=rot-180;
-	velocity=5;
-	new particleClass(30,"#FF0000",x,y,velocity * Math.cos( rotation * Math.PI / 180 ), velocity * Math.sin( rotation * Math.PI / 180 ));
-	new particleClass(30,"#FF0000",x,y,4 * Math.cos( rotation * Math.PI / 180 ), 4 * Math.sin( rotation * Math.PI / 180 ));
-	new particleClass(30,"#FF0000",x,y,3 * Math.cos( rotation * Math.PI / 180 ), 3 * Math.sin( rotation * Math.PI / 180 ));
-	new particleClass(30,"#FF0000",x,y,velocity * Math.cos( (rotation-10) * Math.PI / 180 ), velocity * Math.sin( (rotation-10) * Math.PI / 180 ));
-	new particleClass(30,"#FF0000",x,y,velocity * Math.cos( (rotation+10) * Math.PI / 180 ), velocity * Math.sin( (rotation+10) * Math.PI / 180 ));
+	velocity=3;
+	new particleClass(30+Math.random()*20,"#FF0000",x,y,(velocity+Math.random()*4) * Math.cos( rotation * Math.PI / 180 ), (velocity+Math.random()*4) * Math.sin( rotation * Math.PI / 180 ));
+	new particleClass(10+Math.random()*20,"#FF0000",x,y,(2+Math.random()*4) * Math.cos( rotation * Math.PI / 180 ), (2+Math.random()*4) * Math.sin( rotation * Math.PI / 180 ));
+	new particleClass(30+Math.random()*20,"#FF0000",x,y,(1+Math.random()*4) * Math.cos( rotation * Math.PI / 180 ), (1+Math.random()*4) * Math.sin( rotation * Math.PI / 180 ));
+	new particleClass(30+Math.random()*20,"#FF0000",x,y,velocity * Math.cos( (rotation-(5+Math.random()*10)) * Math.PI / 180 ), velocity * Math.sin( (rotation-(5+Math.random()*10)) * Math.PI / 180 ));
+	new particleClass(30+Math.random()*20,"#FF0000",x,y,velocity * Math.cos( (rotation+(5+Math.random()*10)) * Math.PI / 180 ), velocity * Math.sin( (rotation+(5+Math.random()*10)) * Math.PI / 180 ));
+}
+
+function smallExplosion(x,y){
+	new particleClass(4+Math.random()*8,"#FF0000",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
+	new particleClass(4+Math.random()*8,"#FF0000",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
+	new particleClass(4+Math.random()*8,"#FF0000",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
+	new particleClass(4+Math.random()*8,"#FF0000",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
+	new particleClass(4+Math.random()*8,"#FF0000",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
+	new particleClass(4+Math.random()*8,"#FF0000",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
+	new particleClass(4+Math.random()*8,"#FF0000",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
+	new particleClass(4+Math.random()*8,"#FF0000",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
+
 }
 
 
