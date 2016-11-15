@@ -85,14 +85,12 @@ window.addEventListener( "keyup", function( event ) {
 
 //creating player object
 var player = new shipClass(playerImg,1133,2333,1,0.1);
-player.width=64;
-player.height=64;
+player.resize(0.5);
 
 //some environment objects
 var player2 = new shipClass(playerImg,533,2633,5,0.1);
-var comet=new shipClass(meteorImg,1111,1111,0,1);
-comet.width=256;
-comet.height=256;
+var comet=new shipClass(meteorImg,1111,2111,0,1);
+comet.resize(4);
 new shipClass(meteorImg,1861,1511,0,1);
 new shipClass(meteorImg,861,2001,0,1);
 
@@ -133,7 +131,7 @@ function inputProcesor() {
 		player.velocityY += player.acceleration * Math.sin( player.rotation * Math.PI / 180 );
 		player.velocityX += player.acceleration * Math.cos( player.rotation * Math.PI / 180 );
 		//draw thruster plume particle effect
-		thrusterPlume(player.x+player.width/2 ,player.y+player.height/2,player.rotation);
+		thrusterPlume(player.x+player.width/2-20 * Math.cos( player.rotation * Math.PI / 180 ) ,player.y+player.height/2 -20 * Math.sin(player.rotation * Math.PI / 180 ),player.rotation );
 
 	}
 	//Down
@@ -150,7 +148,7 @@ function inputProcesor() {
 	}
 	//Shoot
 	if ( shoot ) {
-		new bulletClass(player.rotation,30,player.x+player.width/2.3+45 * Math.cos( player.rotation * Math.PI / 180 ),player.y+player.height/2.3+45 * Math.sin( player.rotation * Math.PI / 180 ));
+		new bulletClass(player.rotation,30,player.x+player.width/2+30 * Math.cos( player.rotation * Math.PI / 180 ),player.y+player.height/2+30 * Math.sin( player.rotation * Math.PI / 180 ));
 	}
 }
 
@@ -175,7 +173,6 @@ function physics() {
 
 function collisionDetect() {     // KOMPLEKSNOST  O(n2)  !!!!!  treba biti optimizirano
 
-
 	if ( bullets.length !== 0 ) {
 		for (var i = 0 ; i < bullets.length; i++ ){
 			var bullet =  bullets[ i ];
@@ -190,6 +187,7 @@ function collisionDetect() {     // KOMPLEKSNOST  O(n2)  !!!!!  treba biti optim
 				if ( solids.length !== 0 ) {
 					for ( var y = 0; y <  solids.length; y++ ) {
 						if (hitTestCircle(bullet, solids[y])){
+							console.log(solids[y]);
 							smallExplosion(bullet.x,bullet.y);
 							removeObject(bullet, bullets);
 							removeObject(bullet, sprites);
@@ -210,10 +208,6 @@ function render() {
 	//draw the background
 	drawingSurface.drawImage( backgroundImg.imageFile, backgroundImg.sourceX, backgroundImg.sourceY, backgroundImg.sourceWidth, backgroundImg.sourceHeight, 0, 0,
 	screenWidth * backgroundZoom, screenHeight * backgroundZoom );
-
-	//calculate and render particle system
-	moveAndRenderParticles();
-
 	//Loop through all the sprites and use their properties to display them
 	if ( sprites.length !== 0 ) {
 		for ( var i = 0; i < sprites.length; i++ ) {
@@ -233,6 +227,9 @@ function render() {
 			}
 		}
 	}
+
+	//calculate and render particle system
+	moveAndRenderParticles();
 }
 
 
@@ -308,15 +305,14 @@ function removeObject(objectToRemove, array)
 
 function hitTestCircle(physicsClass1, physicsClass2){
 	//Calculate the vector between the circles' center points
-	var vx = physicsClass1.x + (physicsClass1.width/2) - physicsClass2.x + (physicsClass2.width/2);
-	var vy = physicsClass1.y + (physicsClass1.height/2) - physicsClass2.y + (physicsClass2.height/2);
+	var vx = physicsClass1.x + (physicsClass1.width/2) - physicsClass2.x - (physicsClass2.width/2);
+	var vy = physicsClass1.y + (physicsClass1.height/2) - physicsClass2.y - (physicsClass2.height/2);
 	//Find the distance between the circles by calculating
 	//the vector's magnitude (how long the vector is)
 	var magnitude = Math.sqrt(vx * vx + vy * vy);
 	//Add together the circles' total radii
-	var totalRadii = physicsClass1.collisionRadius + physicsClass2.collisionRadius;
+	var totalRadi = physicsClass1.collisionRadius + physicsClass2.collisionRadius;
 	//Set hit to true if the distance between the circles is
 	//less than their totalRadii
-	var hit = magnitude < totalRadii;
-	return hit;
+	return magnitude < totalRadi;
 }
