@@ -237,12 +237,12 @@ function render() {
 //----------------------- MANJE FUNKCIJE KOJE SE KORISTE U VELIKIMA -----------------------------
 
 function moveAndRenderParticles(){
-	drawingSurface.fillStyle="#FFEE99";
 	if ( particles.length !== 0 ) {
 		for ( var i = 0; i < particles.length; i++ ) {
 			var particle = particles[ i ];
 			particle.x+=particle.velocityX;
 			particle.y+=particle.velocityY;
+			drawingSurface.fillStyle=particle.color;
 			drawingSurface.fillRect(particle.x-cameraPosX-2,particle.y-cameraPosY-2,4,4);
 			particle.ttl--;
 			if (particle.ttl<1){

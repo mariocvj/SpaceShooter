@@ -91,22 +91,22 @@ function particleClass(ttl,color,x,y,velocityX,velocityY){
 function thrusterPlume(x,y,rot){
 	rotation=rot-180;
 	velocity=3;
-	new particleClass(30+Math.random()*20,"#FF0000",x,y,(velocity+Math.random()*4) * Math.cos( rotation * Math.PI / 180 ), (velocity+Math.random()*4) * Math.sin( rotation * Math.PI / 180 ));
-	new particleClass(10+Math.random()*20,"#FF0000",x,y,(2+Math.random()*4) * Math.cos( rotation * Math.PI / 180 ), (2+Math.random()*4) * Math.sin( rotation * Math.PI / 180 ));
-	new particleClass(30+Math.random()*20,"#FF0000",x,y,(1+Math.random()*4) * Math.cos( rotation * Math.PI / 180 ), (1+Math.random()*4) * Math.sin( rotation * Math.PI / 180 ));
-	new particleClass(30+Math.random()*20,"#FF0000",x,y,velocity * Math.cos( (rotation-(5+Math.random()*10)) * Math.PI / 180 ), velocity * Math.sin( (rotation-(5+Math.random()*10)) * Math.PI / 180 ));
-	new particleClass(30+Math.random()*20,"#FF0000",x,y,velocity * Math.cos( (rotation+(5+Math.random()*10)) * Math.PI / 180 ), velocity * Math.sin( (rotation+(5+Math.random()*10)) * Math.PI / 180 ));
+	new particleClass(30+Math.random()*20,"#7777FF",x,y,(velocity+Math.random()*4) * Math.cos( rotation * Math.PI / 180 ), (velocity+Math.random()*4) * Math.sin( rotation * Math.PI / 180 ));
+	new particleClass(10+Math.random()*20,"#BBBBFF",x,y,(2+Math.random()*4) * Math.cos( rotation * Math.PI / 180 ), (2+Math.random()*4) * Math.sin( rotation * Math.PI / 180 ));
+	new particleClass(30+Math.random()*20,"#BBBBFF",x,y,(1+Math.random()*4) * Math.cos( rotation * Math.PI / 180 ), (1+Math.random()*4) * Math.sin( rotation * Math.PI / 180 ));
+	new particleClass(30+Math.random()*20,"#DDDDFF",x,y,velocity * Math.cos( (rotation-(5+Math.random()*10)) * Math.PI / 180 ), velocity * Math.sin( (rotation-(5+Math.random()*10)) * Math.PI / 180 ));
+	new particleClass(30+Math.random()*20,"#DDDDDFF",x,y,velocity * Math.cos( (rotation+(5+Math.random()*10)) * Math.PI / 180 ), velocity * Math.sin( (rotation+(5+Math.random()*10)) * Math.PI / 180 ));
 }
 
 function smallExplosion(x,y){
-	new particleClass(4+Math.random()*8,"#FF0000",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
-	new particleClass(4+Math.random()*8,"#FF0000",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
-	new particleClass(4+Math.random()*8,"#FF0000",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
-	new particleClass(4+Math.random()*8,"#FF0000",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
-	new particleClass(4+Math.random()*8,"#FF0000",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
-	new particleClass(4+Math.random()*8,"#FF0000",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
-	new particleClass(4+Math.random()*8,"#FF0000",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
-	new particleClass(4+Math.random()*8,"#FF0000",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
+	new particleClass(4+Math.random()*8,"#FFEE99",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
+	new particleClass(4+Math.random()*8,"#FFEE99",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
+	new particleClass(4+Math.random()*8,"#FFAAAA",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
+	new particleClass(4+Math.random()*8,"#FFFFAA",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
+	new particleClass(4+Math.random()*8,"#FFDDAA",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
+	new particleClass(4+Math.random()*8,"#FFFFFF",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
+	new particleClass(4+Math.random()*8,"#FFFF55",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
+	new particleClass(4+Math.random()*8,"#FFEE99",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
 
 }
 
