@@ -107,9 +107,14 @@ function smallExplosion(x,y){
 	new particleClass(4+Math.random()*8,"#FFFFFF",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
 	new particleClass(4+Math.random()*8,"#FFFF55",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
 	new particleClass(4+Math.random()*8,"#FFEE99",x,y,(Math.random()-0.5)*15,(Math.random()-0.5)*15);
-
 }
 
+function collisionSparks(x,y){
+	new particleClass(3+Math.random()*6,"#FFFFFF",x,y,(Math.random()-0.5)*25,(Math.random()-0.5)*25);
+	new particleClass(3+Math.random()*6,"#FFFFFF",x,y,(Math.random()-0.5)*25,(Math.random()-0.5)*25);
+	new particleClass(3+Math.random()*6,"#FFFFFF",x,y,(Math.random()-0.5)*25,(Math.random()-0.5)*25);
+	new particleClass(3+Math.random()*6,"#FFFFFF",x,y,(Math.random()-0.5)*25,(Math.random()-0.5)*25);
+}
 
 
 

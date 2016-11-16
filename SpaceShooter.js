@@ -90,7 +90,7 @@ player.resize(0.5);
 //some environment objects
 var player2 = new shipClass(playerImg,533,2633,5,0.1);
 var comet=new shipClass(meteorImg,1111,2111,0,1);
-comet.resize(4);
+comet.resize(2.3);
 new shipClass(meteorImg,1861,1511,0,1);
 new shipClass(meteorImg,861,2001,0,1);
 
@@ -155,45 +155,53 @@ function inputProcesor() {
 
 
 function physics() {
+	physicals.forEach(drawPhysics);
 	//applyes physics to all objects in the game
-	if ( physicals.length !== 0 ) {
-		for ( var i = 0; i < physicals.length; i++ ) {
-			var sprite = physicals[ i ];
+		function drawPhysics (physicals) {
 			//Move the sprite
-			sprite.x += sprite.velocityX;
-			sprite.y += sprite.velocityY;
-			//Lower the sprite's velocity to simulate air resistance
-			sprite.velocityY -= sprite.velocityY * sprite.airResistance;
-			sprite.velocityX -= sprite.velocityX * sprite.airResistance;
+			physicals.x += physicals.velocityX;
+			physicals.y += physicals.velocityY;
+			//Lower the physicals's velocity to simulate air resistance
+			physicals.velocityY -= physicals.velocityY * physicals.airResistance;
+			physicals.velocityX -= physicals.velocityX * physicals.airResistance;
 		}
-	}
 }
 
 
 
 function collisionDetect() {     // KOMPLEKSNOST  O(n2)  !!!!!  treba biti optimizirano
 
-	if ( bullets.length !== 0 ) {
-		for (var i = 0 ; i < bullets.length; i++ ){
-			var bullet =  bullets[ i ];
-			//Check if bullets[i] is out of screen, if it is, delete that bullet
-			if ( outOfScreen(bullet.x ,bullet.y) ) {
-				removeObject(bullet,physicals);
-				removeObject(bullet,bullets);
-				removeObject(bullet,sprites);
-			}
-			else{
-				//Check if bullets[i] is colliding with any solid
-				if ( solids.length !== 0 ) {
-					for ( var y = 0; y <  solids.length; y++ ) {
+	var solidsLen=solids.length;
+	if ( solidsLen !== 0 ) {
+		if ( bullets.length !== 0 ) {
+			//check if any bullet is colliding with any solid
+			for (var i = 0 ; i < bullets.length; i++ ){
+				var bullet =  bullets[ i ];
+				//Check if bullets[i] is out of screen, if it is, delete that bullet
+				if ( outOfScreen(bullet.x ,bullet.y) ) {
+					removeObject(bullet,physicals);
+					removeObject(bullet,bullets);
+					removeObject(bullet,sprites);
+				}
+				else{
+					//check if bullets[i] is colliding with any solid
+					for ( var y = 0; y <  solidsLen; y++ ) {
 						if (hitTestCircle(bullet, solids[y])){
-							console.log(solids[y]);
 							smallExplosion(bullet.x,bullet.y);
 							removeObject(bullet, bullets);
 							removeObject(bullet, sprites);
 						}
 					}	
 
+				}
+			}
+		}
+		//check whether any solid is colliding with any other solid
+		for(var i=0 ; i < solidsLen; i++ ){
+			for(var  y = i+1 ; y < solidsLen; y++ ){
+				if (hitTestCircle(solids[i], solids[y])){
+					//handle all the aspects of collision betwen 2 solids
+					solidsHaveCollided(solids[i],solids[y]);
 				}
 			}
 		}
@@ -236,13 +244,55 @@ function render() {
 
 //----------------------- MANJE FUNKCIJE KOJE SE KORISTE U VELIKIMA -----------------------------
 
+function solidsHaveCollided(solid1,solid2){
+	var k=1; //koeficijent restitucije, tj. mjera elastičnosti sudara, mora biti između 0 i 1, 0 je potpuno neelastičan, a 1 potpuno elastičan
+	var center1x=solid1.x+solid1.width/2;
+	var center1y=solid1.y+solid1.height/2;
+	var center2x=solid2.x+solid2.width/2;
+	var center2y=solid2.y+solid2.height/2;
+	var combinedRadius=solid1.collisionRadius + solid2.collisionRadius;
+	var impactX=center1x+(center2x-center1x)*(solid1.collisionRadius/combinedRadius);
+	var impactY=center1y+(center2y-center1y)*(solid1.collisionRadius/combinedRadius);
+	collisionSparks( impactX,impactY );
+	console.log(impactX-solid1.x+impactY-solid1.y);
+	solid1.x=solid1.x-(impactX-solid1.x)*0.2;
+	solid1.y=solid1.y-(impactY-solid1.y)*0.2;
+	solid2.x=solid2.x-(impactX-solid2.x)*0.2;
+	solid2.y=solid2.y-(impactY-solid2.y)*0.2;	
+	/*
+	//calculating object speeds after the impact
+	var momentumX=solid1.collisionRadius*solid1.velocityX+solid2.collisionRadius*solid2.velocityX;
+	var momentumY=solid1.collisionRadius*solid1.velocityY+solid2.collisionRadius*solid2.velocityY;
+
+	var solid1NewVelX=(momentumX+k*solid2.collisionRadius*(solid2.velocityX-solid1.velocityX))/combinedRadius;
+	var solid1NewVelY=(momentumY+k*solid2.collisionRadius*(solid2.velocityY-solid1.velocityY))/combinedRadius;
+
+	var solid2NewVelX=(momentumX+k*solid1.collisionRadius*(solid1.velocityX-solid2.velocityX))/combinedRadius;
+	var solid2NewVelY=(momentumY+k*solid1.collisionRadius*(solid1.velocityY-solid2.velocityY))/combinedRadius;
+
+	solid1.velocityX=solid1NewVelX;
+	solid1.velocityY=solid1NewVelY;
+	solid2.velocityX=solid2NewVelX;
+	solid2.velocityY=solid2NewVelY;
+
+
+	solid1.velocityX=((solid1.collisionRadius-solid2.collisionRadius)*solid1.velocityX+2*solid2.collisionRadius*solid2.velocityX)/combinedRadius;
+	solid1.velocityY=((solid1.collisionRadius-solid2.collisionRadius)*solid1.velocityY+2*solid2.collisionRadius*solid2.velocityY)/combinedRadius;
+	solid2.velocityX=((solid2.collisionRadius-solid1.collisionRadius)*solid1.velocityX+2*solid1.collisionRadius*solid1.velocityX)/combinedRadius;
+	solid2.velocityY=((solid2.collisionRadius-solid1.collisionRadius)*solid1.velocityY+2*solid1.collisionRadius*solid1.velocityY)/combinedRadius;
+	*/
+}
+
+
+
 function moveAndRenderParticles(){
 	if ( particles.length !== 0 ) {
 		for ( var i = 0; i < particles.length; i++ ) {
 			var particle = particles[ i ];
+			drawingSurface.fillStyle=particle.color;
+			drawingSurface.fillRect(particle.x-cameraPosX-2,particle.y-cameraPosY-2,4,4);
 			particle.x+=particle.velocityX;
 			particle.y+=particle.velocityY;
-			drawingSurface.fillStyle=particle.color;
 			drawingSurface.fillRect(particle.x-cameraPosX-2,particle.y-cameraPosY-2,4,4);
 			particle.ttl--;
 			if (particle.ttl<1){
