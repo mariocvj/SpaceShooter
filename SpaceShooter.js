@@ -30,11 +30,11 @@ var drawingSurface = canvas.getContext( "2d" );
 //------------ SETING UP PLAYER INPUT LISTENERS ------------
 
 //Used keys key codes
-var UP = 38;
-var DOWN = 40;
-var RIGHT = 39;
-var LEFT = 37;
-var SPACE = 32;
+const UP = 38;
+const DOWN = 40;
+const RIGHT = 39;
+const LEFT = 37;
+const SPACE = 32;
 //Player commands
 var moveUp = false;
 var moveDown = false;
@@ -176,7 +176,7 @@ function collisionDetect() {     // KOMPLEKSNOST  O(n2)  !!!!!  treba biti optim
 		if ( bullets.length !== 0 ) {
 			//check if any bullet is colliding with any solid
 			for (var i = 0 ; i < bullets.length; i++ ){
-				var bullet =  bullets[ i ];
+				let bullet =  bullets[ i ];
 				//Check if bullets[i] is out of screen, if it is, delete that bullet
 				if ( outOfScreen(bullet.x ,bullet.y) ) {
 					removeObject(bullet,physicals);
@@ -219,8 +219,8 @@ function render() {
 	//Loop through all the sprites and use their properties to display them
 	if ( sprites.length !== 0 ) {
 		for ( var i = 0; i < sprites.length; i++ ) {
-			var sprite = sprites[ i ];
-			var spriteImage=sprite.imageClass;
+			let sprite = sprites[ i ];
+			let spriteImage=sprite.imageClass;
 			if ( true ) {
 				//Save the current state of the drawing surface before it's rotated
 				drawingSurface.save();
@@ -245,14 +245,14 @@ function render() {
 //----------------------- MANJE FUNKCIJE KOJE SE KORISTE U VELIKIMA -----------------------------
 
 function solidsHaveCollided(solid1,solid2){
-	var k=1; //koeficijent restitucije, tj. mjera elastičnosti sudara, mora biti između 0 i 1, 0 je potpuno neelastičan, a 1 potpuno elastičan
-	var center1x=solid1.x+solid1.width/2;
-	var center1y=solid1.y+solid1.height/2;
-	var center2x=solid2.x+solid2.width/2;
-	var center2y=solid2.y+solid2.height/2;
-	var combinedRadius=solid1.collisionRadius + solid2.collisionRadius;
-	var impactX=center1x+(center2x-center1x)*(solid1.collisionRadius/combinedRadius);
-	var impactY=center1y+(center2y-center1y)*(solid1.collisionRadius/combinedRadius);
+	let k=1; //koeficijent restitucije, tj. mjera elastičnosti sudara, mora biti između 0 i 1, 0 je potpuno neelastičan, a 1 potpuno elastičan
+	let center1x=solid1.x+solid1.width/2;
+	let center1y=solid1.y+solid1.height/2;
+	let center2x=solid2.x+solid2.width/2;
+	let center2y=solid2.y+solid2.height/2;
+	let combinedRadius=solid1.collisionRadius + solid2.collisionRadius;
+	let impactX=center1x+(center2x-center1x)*(solid1.collisionRadius/combinedRadius);
+	let impactY=center1y+(center2y-center1y)*(solid1.collisionRadius/combinedRadius);
 	collisionSparks( impactX,impactY );
 	console.log(impactX-solid1.x+impactY-solid1.y);
 	solid1.x=solid1.x-(impactX-solid1.x)*0.2;
@@ -322,8 +322,8 @@ function mapBoundaryCollision(){
 
 
 function centerCamera(cenX,cenY){
-	var x=cenX-halfScreenWidth;
-	var y=cenY-halfScreenHeight;
+	let x=cenX-halfScreenWidth;
+	let y=cenY-halfScreenHeight;
 	cameraPosX=x;
 	cameraPosY=y;
 	backgroundImg.sourceX=x;
@@ -344,7 +344,7 @@ function outOfScreen(x,y){
 
 function removeObject(objectToRemove, array)
 {
-	var i = array.indexOf(objectToRemove);
+	let i = array.indexOf(objectToRemove);
 	if (i !== -1)
 	{
 		array.splice(i, 1);
@@ -355,13 +355,13 @@ function removeObject(objectToRemove, array)
 
 function hitTestCircle(physicsClass1, physicsClass2){
 	//Calculate the vector between the circles' center points
-	var vx = physicsClass1.x + (physicsClass1.width/2) - physicsClass2.x - (physicsClass2.width/2);
-	var vy = physicsClass1.y + (physicsClass1.height/2) - physicsClass2.y - (physicsClass2.height/2);
+	let vx = physicsClass1.x + (physicsClass1.width/2) - physicsClass2.x - (physicsClass2.width/2);
+	let vy = physicsClass1.y + (physicsClass1.height/2) - physicsClass2.y - (physicsClass2.height/2);
 	//Find the distance between the circles by calculating
 	//the vector's magnitude (how long the vector is)
-	var magnitude = Math.sqrt(vx * vx + vy * vy);
+	let magnitude = Math.sqrt(vx * vx + vy * vy);
 	//Add together the circles' total radii
-	var totalRadi = physicsClass1.collisionRadius + physicsClass2.collisionRadius;
+	let totalRadi = physicsClass1.collisionRadius + physicsClass2.collisionRadius;
 	//Set hit to true if the distance between the circles is
 	//less than their totalRadii
 	return magnitude < totalRadi;

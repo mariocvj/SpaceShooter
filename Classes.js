@@ -67,11 +67,17 @@ function shipClass(imageClass,x,y,acceleration,airResistance){
 
 
 function bulletClass(rotation,velocity,x,y) {
-	var velocityY = velocity * Math.sin( player.rotation * Math.PI / 180 );
-	var velocityX = velocity * Math.cos( player.rotation * Math.PI / 180 );
+	let velocityY = velocity * Math.sin( player.rotation * Math.PI / 180 );
+	let velocityX = velocity * Math.cos( player.rotation * Math.PI / 180 );
 	this.collisionRadius=(bulletImg.sourceWidth+bulletImg.sourceHeight)/7;
 	physicsClass.call(this,bulletImg,x-10,y-6,rotation,velocityY,velocityX,0);
 	bullets.push(this);
+}
+
+
+
+function pilotAiClass(ship){
+	
 }
 
 
