@@ -45,38 +45,32 @@ var shoot = false;
 window.addEventListener( "keydown", function( event ) {
 	switch ( event.keyCode ) {
 		case UP:
-			moveUp = true;
-			break;
-		case DOWN:
-			moveDown = true;
+			player.moveUp = true;
 			break;
 		case LEFT:
-			moveLeft = true;
+			player.moveLeft = true;
 			break;
 		case RIGHT:
-			moveRight = true;
+			player.moveRight = true;
 			break;
 		case SPACE:
-			shoot = true;
+			player.shoot = true;
 			break;
 	}
 }, false );
 window.addEventListener( "keyup", function( event ) {
 	switch ( event.keyCode ) {
 		case UP:
-			moveUp = false;
-			break;
-		case DOWN:
-			moveDown = false;
+			player.moveUp = false;
 			break;
 		case LEFT:
-			moveLeft = false;
+			player.moveLeft = false;
 			break;
 		case RIGHT:
-			moveRight = false;
+			player.moveRight = false;
 			break;
 		case SPACE:
-			shoot = false;
+			player.shoot = false;
 			break;
 	}
 }, false );
@@ -84,20 +78,30 @@ window.addEventListener( "keyup", function( event ) {
 
 
 //creating player object
-var player = new shipClass(playerImg,1133,2333,1,0.1);
-player.resize(0.5);
+var playership = new shipClass(playerImg,1133,2333,0.1,1);
+playership.resize(0.5);
+var player = new pilotAiClass(playership);
+removeObject(player, AIs);
+
 
 //some environment objects
-var player2 = new shipClass(playerImg,533,2633,5,0.1);
-var comet=new shipClass(meteorImg,1111,2111,0,1);
+var player2 = new shipClass(playerImg,533,2633);
+var comet=new solidClass(meteorImg,1111,2111);
 comet.resize(2.3);
-new shipClass(meteorImg,1861,1511,0,1);
-new shipClass(meteorImg,861,2001,0,1);
+new solidClass(meteorImg,1861,1511);
+new solidClass(meteorImg,861,2001);
 
-var enemy = new shipClass(playerImg, 1500, 2000,1,0.1);
+var enemy = new shipClass(playerImg, 1500, 2000,0.1,1);
 enemy.resize(0.5);
-enemy.airResistance=0.7;
+enemy.airResistance=0.1;
 var enemyAI= new pilotAiClass(enemy);
+
+var enemy2 = new shipClass(playerImg, 1000, 2000,0.1,1);
+enemy2.resize(1.3);
+var enemyAI2= new pilotAiClass(enemy2);
+
+var enemy3 = new shipClass(playerImg, 2000, 2000,0.1,1);
+var enemyAI3= new pilotAiClass(enemy3);
 
 var meteorImg = new Image();
 meteorImg.addEventListener("load", loadHandler, false);
@@ -112,10 +116,10 @@ function loadHandler() {
 function update() {
 	//The animation loop
 	requestAnimationFrame( update, canvas );
-	//react to player input
-	inputProcesor();
+	//Run the game's AIs and react to player's and AI's input commands
+	inputsProcesor();
 	//center the camera on the player
-	centerCamera(player.x,player.y);
+	centerCamera(player.ship.x,player.ship.y);
 	//keep the player inside the map
 	mapBoundaryCollision();
 	//apply physics to all sprites
@@ -128,54 +132,12 @@ function update() {
 
 
 
-function inputProcesor() {
-	//reacts to all player input
-	//Up
-	if ( moveUp && !moveDown ) {
-		player.velocityY += player.acceleration * Math.sin( player.rotation * Math.PI / 180 );
-		player.velocityX += player.acceleration * Math.cos( player.rotation * Math.PI / 180 );
-		//draw thruster plume particle effect
-		thrusterPlume(player.x+player.width/2-20 * Math.cos( player.rotation * Math.PI / 180 ) ,player.y+player.height/2 -20 * Math.sin(player.rotation * Math.PI / 180 ),player.rotation );
-
-	}
-
-	if ( enemyAI.shoot ) {
-		enemyAI.ship.velocityY += enemyAI.ship.acceleration * Math.sin( enemyAI.ship.rotation * Math.PI / 180 );
-		enemyAI.ship.velocityX += enemyAI.ship.acceleration * Math.cos( enemyAI.ship.rotation * Math.PI / 180 );
-		//draw thruster plume particle effect
-		thrusterPlume(enemyAI.ship.x+enemyAI.ship.width/2-20 * Math.cos( enemyAI.ship.rotation * Math.PI / 180 ) ,enemyAI.ship.y+enemyAI.ship.height/2 -20 * Math.sin(enemyAI.ship.rotation * Math.PI / 180 ),enemyAI.ship.rotation );
-
-	}
-	//Down
-	/*
-	if ( moveDown && !moveUp ) {
-		player.velocityY += 5;
-	}
-	*/
-	//Left
-	if ( moveLeft && !moveRight ) {
-		player.rotation -= 5;
-	}
-	//Right
-	if ( moveRight && !moveLeft ) {
-		player.rotation += 5;
-	}
-	//Shoot
-	if ( shoot ) {
-		new bulletClass(player.rotation,30,player.x+player.width/2+30 * Math.cos( player.rotation * Math.PI / 180 ),player.y+player.height/2+30 * Math.sin( player.rotation * Math.PI / 180 ));
-	}
-
-	if (enemyAI.shoot){
-		new bulletClass(enemyAI.ship.rotation,30,enemyAI.ship.x+enemyAI.ship.width/2+30 * Math.cos( enemyAI.ship.rotation * Math.PI / 180 ),enemyAI.ship.y+enemyAI.ship.height/2+30 * Math.sin( enemyAI.ship.rotation * Math.PI / 180 ));
-	}
-
-	enemyAI.update();
-	if (enemyAI.moveLeft){
-		enemyAI.ship.rotation += 5;
-	}
-	else{
-		enemyAI.ship.rotation -= 5;
-	}
+function inputsProcesor() {
+	AIs.forEach(ai =>{
+		ai.update();
+		ai.inputProcesor();
+	});
+	player.inputProcesor();
 }
 
 
@@ -332,16 +294,16 @@ function moveAndRenderParticles(){
 
 function mapBoundaryCollision(){
 	if (cameraPosX<0){
-		player.x=halfScreenWidth;
+		player.ship.x=halfScreenWidth;
 	}
 	if (cameraPosY<0){
-		player.y=halfScreenHeight;
+		player.ship.y=halfScreenHeight;
 	}
 	if (cameraPosX+screenWidth>mapWidth){
-		player.x=mapWidth-halfScreenWidth;
+		player.ship.x=mapWidth-halfScreenWidth;
 	}
 	if (cameraPosY+screenHeight>mapHeight){
-		player.y=mapHeight-halfScreenHeight;
+		player.ship.y=mapHeight-halfScreenHeight;
 	}
 }
 
