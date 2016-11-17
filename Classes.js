@@ -66,9 +66,24 @@ function shipClass(imageClass,x,y,acceleration,airResistance){
 
 
 
+function solidClass(imageClass,x,y,airResistance){
+	this.collisionRadius=(imageClass.sourceWidth+imageClass.sourceHeight)/4.55;			
+	physicsClass.call(this,imageClass,x,y,0,0,0,airResistance);
+	solids.push(this);
+
+	this.resize = function (factor){
+		this.width=this.width*factor;
+		this.height=this.height*factor;
+		this.collisionRadius=this.collisionRadius*factor;
+		this.airResistance=this.airResistance*factor;
+	}
+}
+
+
+
 function bulletClass(rotation,velocity,x,y) {
-	let velocityY = velocity * Math.sin( player.rotation * Math.PI / 180 );
-	let velocityX = velocity * Math.cos( player.rotation * Math.PI / 180 );
+	let velocityY = velocity * Math.sin( rotation * Math.PI / 180 );
+	let velocityX = velocity * Math.cos( rotation * Math.PI / 180 );
 	this.collisionRadius=(bulletImg.sourceWidth+bulletImg.sourceHeight)/7;
 	physicsClass.call(this,bulletImg,x-10,y-6,rotation,velocityY,velocityX,0);
 	bullets.push(this);
@@ -77,7 +92,49 @@ function bulletClass(rotation,velocity,x,y) {
 
 
 function pilotAiClass(ship){
-	
+	this.ship=ship;
+	this.target=player;
+	this.moveUp=false;
+	this.moveLeft=false;
+	this.moveRight=false;
+	this.shoot=false;
+	this.broadsideRange=900;
+
+	this.update = function(){
+
+		// calculating desired rotation of the AI
+		this.ship.rotation=this.ship.rotation%360;
+		let angle=Math.atan2(this.ship.y-this.target.y,this.ship.x-this.target.x)/Math.PI*180;
+
+		//calculating in which direction to turn to achieve desired rotation the fastest
+		let angleCheck=Math.abs((this.ship.rotation-(angle))%360);
+		//console.log(angleCheck+"ddddddd"+(angleCheck-180));
+		
+		//turning
+		if (angleCheck>0 && angleCheck<180){
+			this.moveLeft=true;
+			this.moveRight=false;
+		}else{
+
+			this.moveLeft=false;
+			this.moveRight=true;			
+		}
+
+		if (180-angleCheck < 15) {
+			if (this.broadsideRange > Math.sqrt(Math.pow(this.ship.y-this.target.y,2)+Math.pow(this.ship.x-this.target.x,2))){
+				this.moveUp=false;
+				this.shoot=true;
+			}else{
+				this.moveUp=true;
+				this.shoot=false;
+			}
+		}else{
+			this.shoot=false;
+			this.moveUp=false;
+		}
+		console.log(this.shoot);
+		
+	}
 }
 
 

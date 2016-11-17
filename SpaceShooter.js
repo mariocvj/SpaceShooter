@@ -94,6 +94,10 @@ comet.resize(2.3);
 new shipClass(meteorImg,1861,1511,0,1);
 new shipClass(meteorImg,861,2001,0,1);
 
+var enemy = new shipClass(playerImg, 1500, 2000,1,0.1);
+enemy.resize(0.5);
+enemy.airResistance=0.7;
+var enemyAI= new pilotAiClass(enemy);
 
 var meteorImg = new Image();
 meteorImg.addEventListener("load", loadHandler, false);
@@ -134,10 +138,20 @@ function inputProcesor() {
 		thrusterPlume(player.x+player.width/2-20 * Math.cos( player.rotation * Math.PI / 180 ) ,player.y+player.height/2 -20 * Math.sin(player.rotation * Math.PI / 180 ),player.rotation );
 
 	}
-	//Down
-	if ( moveDown && !moveUp ) {
-		//player.velocityY += 5;
+
+	if ( enemyAI.shoot ) {
+		enemyAI.ship.velocityY += enemyAI.ship.acceleration * Math.sin( enemyAI.ship.rotation * Math.PI / 180 );
+		enemyAI.ship.velocityX += enemyAI.ship.acceleration * Math.cos( enemyAI.ship.rotation * Math.PI / 180 );
+		//draw thruster plume particle effect
+		thrusterPlume(enemyAI.ship.x+enemyAI.ship.width/2-20 * Math.cos( enemyAI.ship.rotation * Math.PI / 180 ) ,enemyAI.ship.y+enemyAI.ship.height/2 -20 * Math.sin(enemyAI.ship.rotation * Math.PI / 180 ),enemyAI.ship.rotation );
+
 	}
+	//Down
+	/*
+	if ( moveDown && !moveUp ) {
+		player.velocityY += 5;
+	}
+	*/
 	//Left
 	if ( moveLeft && !moveRight ) {
 		player.rotation -= 5;
@@ -149,6 +163,18 @@ function inputProcesor() {
 	//Shoot
 	if ( shoot ) {
 		new bulletClass(player.rotation,30,player.x+player.width/2+30 * Math.cos( player.rotation * Math.PI / 180 ),player.y+player.height/2+30 * Math.sin( player.rotation * Math.PI / 180 ));
+	}
+
+	if (enemyAI.shoot){
+		new bulletClass(enemyAI.ship.rotation,30,enemyAI.ship.x+enemyAI.ship.width/2+30 * Math.cos( enemyAI.ship.rotation * Math.PI / 180 ),enemyAI.ship.y+enemyAI.ship.height/2+30 * Math.sin( enemyAI.ship.rotation * Math.PI / 180 ));
+	}
+
+	enemyAI.update();
+	if (enemyAI.moveLeft){
+		enemyAI.ship.rotation += 5;
+	}
+	else{
+		enemyAI.ship.rotation -= 5;
 	}
 }
 
