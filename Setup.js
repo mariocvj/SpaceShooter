@@ -36,3 +36,11 @@ var backgroundImg = new imageClass("PlaceholderGraphics/Background.jpg",0,0,0,0)
 var meteorImg = new imageClass("PlaceholderGraphics/Meteor2.png",0,0,56,59);
 
 var charmanderImg = new imageClass("PlaceholderGraphics/Charmander.gif",0,0,256,256);
+
+
+
+// ---------------------------- BUGS TO BE FIXED LATER !!! ----------------------------
+
+//	AI rotation blindspot at a tiny angle to the right
+//	collision reaction to be replaced with a bouncing system
+//	bullet exit point not being scaled with the size of ship that is fireing it

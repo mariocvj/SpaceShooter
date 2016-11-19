@@ -45,32 +45,32 @@ var shoot = false;
 window.addEventListener( "keydown", function( event ) {
 	switch ( event.keyCode ) {
 		case UP:
-			player.moveUp = true;
+			playership.AI.moveUp = true;
 			break;
 		case LEFT:
-			player.moveLeft = true;
+			playership.AI.moveLeft = true;
 			break;
 		case RIGHT:
-			player.moveRight = true;
+			playership.AI.moveRight = true;
 			break;
 		case SPACE:
-			player.shoot = true;
+			playership.AI.shoot = true;
 			break;
 	}
 }, false );
 window.addEventListener( "keyup", function( event ) {
 	switch ( event.keyCode ) {
 		case UP:
-			player.moveUp = false;
+			playership.AI.moveUp = false;
 			break;
 		case LEFT:
-			player.moveLeft = false;
+			playership.AI.moveLeft = false;
 			break;
 		case RIGHT:
-			player.moveRight = false;
+			playership.AI.moveRight = false;
 			break;
 		case SPACE:
-			player.shoot = false;
+			playership.AI.shoot = false;
 			break;
 	}
 }, false );
@@ -78,10 +78,10 @@ window.addEventListener( "keyup", function( event ) {
 
 
 //creating player object
-var playership = new shipClass(playerImg,1133,2333,0.1,1);
+var playership = new shipClass(playerImg,1133,2333,1000,0.1,1);
 playership.resize(0.5);
-var player = new pilotAiClass(playership);
-removeObject(player, AIs);
+playership.createAi();//kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk bug možda
+removeObject (playership, AIs);
 
 
 //some environment objects
@@ -91,17 +91,17 @@ comet.resize(2.3);
 new solidClass(meteorImg,1861,1511);
 new solidClass(meteorImg,861,2001);
 
-var enemy = new shipClass(playerImg, 1500, 2000,0.1,1);
+var enemy = new shipClass(playerImg, 1500, 2000,33,0.1,1);
 enemy.resize(0.5);
 enemy.airResistance=0.1;
-var enemyAI= new pilotAiClass(enemy);
+enemy.createAi();
 
-var enemy2 = new shipClass(playerImg, 1000, 2000,0.1,1);
+var enemy2 = new shipClass(playerImg, 1000, 2000,100,0.1,1);
 enemy2.resize(1.3);
-var enemyAI2= new pilotAiClass(enemy2);
+enemy2.createAi();
 
-var enemy3 = new shipClass(playerImg, 2000, 2000,0.1,1);
-var enemyAI3= new pilotAiClass(enemy3);
+var enemy3 = new shipClass(charmanderImg, 2000, 2000,33,0.1,1);
+enemy3.createAi();
 
 var meteorImg = new Image();
 meteorImg.addEventListener("load", loadHandler, false);
@@ -119,7 +119,7 @@ function update() {
 	//Run the game's AIs and react to player's and AI's input commands
 	inputsProcesor();
 	//center the camera on the player
-	centerCamera(player.ship.x,player.ship.y);
+	centerCamera(playership.x,playership.y);
 	//keep the player inside the map
 	mapBoundaryCollision();
 	//apply physics to all sprites
@@ -133,11 +133,11 @@ function update() {
 
 
 function inputsProcesor() {
-	AIs.forEach(ai =>{
-		ai.update();
-		ai.inputProcesor();
+	AIs.forEach(ship =>{
+		ship.updateAi();
+		ship.inputProcesorAi();
 	});
-	player.inputProcesor();
+	playership.inputProcesorAi();
 }
 
 
@@ -174,10 +174,19 @@ function collisionDetect() {     // KOMPLEKSNOST  O(n2)  !!!!!  treba biti optim
 				else{
 					//check if bullets[i] is colliding with any solid
 					for ( var y = 0; y <  solidsLen; y++ ) {
-						if (hitTestCircle(bullet, solids[y])){
-							smallExplosion(bullet.x,bullet.y);
-							removeObject(bullet, bullets);
-							removeObject(bullet, sprites);
+						if (hitTestCircle (bullet, solids[y]) ){
+							smallExplosion (bullet.x,bullet.y);
+							solids[y].health -= bullet.damage;
+							removeObject (bullet, bullets);
+							removeObject (bullet, sprites);
+							if ( solids[y].health < 0 ){
+								removeAi (solids[y]);
+								removeObject (solids[y], sprites);
+								removeObject (solids[y], physicals);
+								removeObject (solids[y], AIs);
+								removeObject (solids[y], solids);
+						
+							}
 						}
 					}	
 
@@ -226,6 +235,8 @@ function render() {
 
 	//calculate and render particle system
 	moveAndRenderParticles();
+	//draw healthbars
+	solids.forEach(drawHealthBar);
 }
 
 
@@ -294,16 +305,16 @@ function moveAndRenderParticles(){
 
 function mapBoundaryCollision(){
 	if (cameraPosX<0){
-		player.ship.x=halfScreenWidth;
+		playership.x=halfScreenWidth;
 	}
 	if (cameraPosY<0){
-		player.ship.y=halfScreenHeight;
+		playership.y=halfScreenHeight;
 	}
 	if (cameraPosX+screenWidth>mapWidth){
-		player.ship.x=mapWidth-halfScreenWidth;
+		playership.x=mapWidth-halfScreenWidth;
 	}
 	if (cameraPosY+screenHeight>mapHeight){
-		player.ship.y=mapHeight-halfScreenHeight;
+		playership.y=mapHeight-halfScreenHeight;
 	}
 }
 
@@ -353,4 +364,15 @@ function hitTestCircle(physicsClass1, physicsClass2){
 	//Set hit to true if the distance between the circles is
 	//less than their totalRadii
 	return magnitude < totalRadi;
+}
+
+
+
+function drawHealthBar(solid){
+	let size=solid.maxHealth/solid.width;
+	drawingSurface.fillStyle="#FF0000";
+	drawingSurface.fillRect(solid.x-cameraPosX,solid.y-cameraPosY,Math.floor(solid.maxHealth/size),4);
+	console.log(Math.floor(solid.maxHealth/size));
+	drawingSurface.fillStyle="#00FF00";
+	drawingSurface.fillRect(solid.x-cameraPosX,solid.y-cameraPosY,Math.floor(solid.health/size),4);
 }
